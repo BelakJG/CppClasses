@@ -16,8 +16,8 @@ public:
     RuntimeArray(RuntimeArray&& other) noexcept;
     RuntimeArray& operator=(RuntimeArray&& other) noexcept;
 
-    size_t size() {return array_size;}
-    bool empty() {return array_size == 0;}
+    size_t size() const {return array_size;}
+    bool empty() const {return array_size == 0;}
 
     T& operator[](size_t index) {return array_data[index];}
     const T& operator[](size_t index) const {return array_data[index];}

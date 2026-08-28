@@ -7,7 +7,7 @@ template <typename T>
 class RuntimeArray{
 private:
     size_t array_size;
-    T* arr_data;
+    T* array_data;
 public:
     RuntimeArray(size_t s = 0);
     ~RuntimeArray();
@@ -19,8 +19,8 @@ public:
     size_t size() {return array_size;}
     bool empty() {return array_size == 0;}
 
-    T& operator[](size_t index) {return arr_data[index];}
-    const T& operator[](size_t index) const {return arr_data[index];}
+    T& operator[](size_t index) {return array_data[index];}
+    const T& operator[](size_t index) const {return array_data[index];}
 
     T& at(size_t index);
     const T& at(size_t index) const;
@@ -30,7 +30,7 @@ public:
     T& back();
     const T& back() const;
 
-    T* data() {return arr_data;}
+    T* data() {return array_data;}
 
     void fill(const T& value);
 };

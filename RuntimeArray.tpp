@@ -8,8 +8,6 @@ RuntimeArray<T>::RuntimeArray(size_t s) : array_size(s), array_data(new T[s]()) 
 
 template <typename T>
 RuntimeArray<T>::~RuntimeArray() {
-    array_data = nullptr;
-    array_size = 0;
     delete[] array_data;
 }
 

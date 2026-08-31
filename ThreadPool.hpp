@@ -11,7 +11,6 @@
 
 class ThreadPool {
 private:
-    unsigned int active_threads = 1;
     unsigned int max_threads;
     std::vector<std::thread> workers;
     std::queue<std::packaged_task<void()>> tasks;
@@ -21,9 +20,10 @@ private:
 
     void worker_thread();
 public:
-    ThreadPool(unsigned int num_threads = 8);
+    ThreadPool(unsigned int num_threads = std::thread::hardware_concurrency());
+    ~ThreadPool();
     std::future<void> enqueue(std::function<void()> task);
-    void stop_all();
+    void stop_all(bool remove_tasks = false);
 };
 
 #endif

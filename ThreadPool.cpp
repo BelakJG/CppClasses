@@ -12,11 +12,13 @@ void ThreadPool::worker_thread() {
 
         auto task = std::move(tasks.front());
         tasks.pop();
+        lock.unlock();
 
         task();
     }
 
-    std::cout << "thread stopped" << std::endl;
+    std::lock_guard lock(queue_lock);
+    std::cout << "thread " << std::this_thread::get_id() << " stopped" << std::endl;
 }
 
 ThreadPool::ThreadPool(unsigned int num_threads) {
@@ -24,8 +26,11 @@ ThreadPool::ThreadPool(unsigned int num_threads) {
 
     for (int i = 1; i < max_threads; ++i) {
         workers.emplace_back(std::thread(&ThreadPool::worker_thread, this));
-        ++active_threads;
     }
+}
+
+ThreadPool::~ThreadPool() {
+    stop_all();
 }
 
 std::future<void> ThreadPool::enqueue(std::function<void()> task) {
@@ -40,9 +45,12 @@ std::future<void> ThreadPool::enqueue(std::function<void()> task) {
     return fut;
 }
 
-void ThreadPool::stop_all() {
+void ThreadPool::stop_all(bool remove_tasks) {
     {
         std::lock_guard lock(queue_lock);
+        if (remove_tasks) {
+            tasks = {};
+        }
         stop = true;
     }
     cv.notify_all();

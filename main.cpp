@@ -8,5 +8,4 @@ int main() {
 
     auto t = tp.enqueue([]() {cout << "done" << endl;});
     t.get();
-    tp.stop_all();
 }

@@ -8,12 +8,13 @@
 #include <functional>
 #include <mutex>
 #include <condition_variable>
+#include <type_traits>
 
 class ThreadPool {
 private:
     unsigned int max_threads;
     std::vector<std::thread> workers;
-    std::queue<std::packaged_task<void()>> tasks;
+    std::queue<std::move_only_function<void()>> tasks;
     std::mutex queue_lock;
     bool stop = false;
     std::condition_variable cv;
@@ -22,8 +23,13 @@ private:
 public:
     ThreadPool(unsigned int num_threads = std::thread::hardware_concurrency());
     ~ThreadPool();
-    std::future<void> enqueue(std::function<void()> task);
+
+    template <typename F, typename... Args>
+    auto enqueue(F&& f, Args&&... args);
+
     void stop_all(bool remove_tasks = false);
 };
+
+#include "ThreadPool.tpp"
 
 #endif

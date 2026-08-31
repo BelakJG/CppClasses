@@ -17,12 +17,13 @@ void ThreadPool::worker_thread() {
         task();
     }
 
-    std::lock_guard lock(queue_lock);
+    static std::mutex console_lock;
+    std::lock_guard lock(console_lock);
     std::cout << "thread " << std::this_thread::get_id() << " stopped" << std::endl;
 }
 
 ThreadPool::ThreadPool(unsigned int num_threads) {
-    max_threads = std::min(num_threads, std::thread::hardware_concurrency());
+    max_threads = std::min(num_threads, std::thread::hardware_concurrency() - 1);
 
     for (int i = 0; i < max_threads; ++i) {
         workers.emplace_back(&ThreadPool::worker_thread, this);

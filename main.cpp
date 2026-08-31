@@ -1,19 +1,12 @@
 #include <iostream>
-#include "RuntimeArray.hpp"
+#include "ThreadPool.hpp"
 
 using namespace std;
 
 int main() {
-    RuntimeArray<RuntimeArray<int>> arr(5);
-    for (int i = 0; i < 5; ++i) {
-        arr[i] = RuntimeArray<int>(8);
-        arr[i].fill(i);
-    }
+    ThreadPool tp(8);
 
-    for (int i = 0; i < 5; ++i) {
-        for (int j = 0; j < 8; ++j) {
-            cout << arr[i][j] << " ";
-        }
-        cout << endl;
-    }
+    auto t = tp.enqueue([]() {cout << "done" << endl;});
+    t.get();
+    tp.stop_all();
 }

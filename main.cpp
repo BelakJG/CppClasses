@@ -1,5 +1,6 @@
 #include <iostream>
 #include "ThreadPool.hpp"
+#include <chrono>
 
 using namespace std;
 
@@ -14,12 +15,12 @@ double find_root(double num) {
 }
 
 int main() {
-    ThreadPool tp(8);
-
-    auto t = tp.enqueue([]() {cout << "done" << endl;});
-    auto num = tp.enqueue([](int a, double b) { return a * b; }, 2, 25);
-    auto root = tp.enqueue(find_root, 37.192);
-    t.get();
-    cout << num.get() << endl;
-    cout << root.get() << endl;
+    ThreadPool tp(4);
+    cout << tp.num_workers() << endl;
+    tp.resize(8);
+    cout << tp.num_workers() << endl;
+    tp.resize(6);
+    std::this_thread::sleep_for(std::chrono::seconds(2));
+    cout << tp.num_workers() << endl;
+    cout << "done pausing" << endl;
 }

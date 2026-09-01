@@ -12,10 +12,12 @@
 
 class ThreadPool {
 private:
-    unsigned int max_threads;
+    size_t max_threads;
     std::vector<std::thread> workers;
+    size_t total_workers = 0;
     std::queue<std::move_only_function<void()>> tasks;
     std::mutex queue_lock;
+    std::mutex shrink_lock;
     bool stop = false;
     std::condition_variable cv;
 
@@ -26,6 +28,10 @@ public:
 
     template <typename F, typename... Args>
     auto enqueue(F&& f, Args&&... args);
+    void resize(unsigned int num_threads);
+
+    const int tasks_left() const {return tasks.size();};
+    const int num_workers() const {return total_workers;};
 
     void stop_all(bool remove_tasks = false);
 };

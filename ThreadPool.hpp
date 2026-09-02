@@ -20,6 +20,8 @@ private:
     std::mutex shrink_lock;
     bool stop = false;
     std::condition_variable cv;
+    std::condition_variable wait_cv;
+    size_t running_tasks = 0;
 
     void worker_thread();
 public:
@@ -33,6 +35,7 @@ public:
     const int tasks_left() const {return tasks.size();};
     const int num_workers() const {return total_workers;};
 
+    void wait_all();
     void stop_all(bool remove_tasks = false);
 };
 

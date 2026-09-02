@@ -2,7 +2,6 @@
 #define THREADPOOL_CPP
 
 #include "ThreadPool.hpp"
-#include <iostream>
 
 void ThreadPool::worker_thread() {
     std::unique_lock lock(queue_lock);
@@ -20,12 +19,14 @@ void ThreadPool::worker_thread() {
 
         auto task = std::move(tasks.front());
         tasks.pop();
+        ++running_tasks;
         lock.unlock();
 
         task();
         lock.lock();
+        --running_tasks;
+        if (running_tasks == 0 and tasks.empty()) wait_cv.notify_all();
     }
-    std::cout << "thread " << std::this_thread::get_id() << " stopped" << std::endl;
 }
 
 ThreadPool::ThreadPool(unsigned int num_threads) {
@@ -49,6 +50,11 @@ void ThreadPool::resize(unsigned int num_threads) {
         ++total_workers;
     }
     cv.notify_all();
+}
+
+void ThreadPool::wait_all() {
+    std::unique_lock lock(queue_lock);
+    wait_cv.wait(lock, [this]{return tasks.empty() and running_tasks == 0;});
 }
 
 void ThreadPool::stop_all(bool remove_tasks) {

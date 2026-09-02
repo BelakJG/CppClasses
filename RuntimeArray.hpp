@@ -32,6 +32,11 @@ public:
 
     T* data() {return array_data;}
 
+    T* begin() {return array_data;}
+    T* end() {return array_data + array_size;}
+    const T* begin() const {return array_data;}
+    const T* end() const {return array_data + array_size;}
+
     void fill(const T& value);
 };
 

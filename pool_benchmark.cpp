@@ -41,8 +41,13 @@ void parallel_sort(auto& arr, auto& pool, size_t left, size_t right) {
             --j;
         }
 
-        pool.enqueue([&arr, &pool, left, j]() {parallel_sort(arr, pool, left, j);});
-        left = j + 1;
+        if (j - left > right - j) {
+            pool.enqueue([&arr, &pool, left, j]() {parallel_sort(arr, pool, left, j);});
+            left = j + 1;
+        } else {
+            pool.enqueue([&arr, &pool, j, right]() {parallel_sort(arr, pool, j + 1, right);});
+            right = j;
+        }
     }
 }
 
@@ -65,8 +70,8 @@ int main() {
     auto start = chrono::steady_clock::now();
     sort(arr_single.begin(), arr_single.end());
     auto end = chrono::steady_clock::now();
-    auto elapsed = chrono::duration_cast<chrono::milliseconds>(end - start);
-    cout << format("Sorting {} elements on one thread took {} miliseconds", num_to_sort, elapsed.count()) << endl;
+    auto single_elapsed = chrono::duration_cast<chrono::milliseconds>(end - start);
+    cout << format("Sorting {} elements on one thread took {} miliseconds", num_to_sort, single_elapsed.count()) << endl;
     cout << (is_sorted(arr_single) ? "sorted" : "not sorted") << endl;
 
     cout << endl;
@@ -74,7 +79,14 @@ int main() {
     parallel_sort(arr_multi, pool, 0, num_to_sort - 1);
     pool.wait_all();
     end = chrono::steady_clock::now();
-    elapsed = chrono::duration_cast<chrono::milliseconds>(end - start);
-    cout << format("Sorting {} elements using {} threads took {} miliseconds", num_to_sort, pool.num_workers() + 1, elapsed.count()) << endl;
-    cout << (is_sorted(arr_multi) ? "sorted" : "not sorted") << endl;
+    auto multi_elapsed = chrono::duration_cast<chrono::milliseconds>(end - start);
+    cout << format("Sorting {} elements using {} threads took {} miliseconds", num_to_sort, pool.num_workers() + 1, multi_elapsed.count()) << endl;
+    cout << (is_sorted(arr_multi) ? "sorted" : "not sorted") << endl << endl;
+
+    cout << format("Sorting using one thread took {:.3f} times longer than with {} threads", 
+                    (static_cast<double>(single_elapsed.count()) / multi_elapsed.count()), 
+                    num_workers + 1) << endl;
+
+    pool.resize(4);
+    cout << format("Resized to {} workers", pool.num_workers()) << endl;
 }

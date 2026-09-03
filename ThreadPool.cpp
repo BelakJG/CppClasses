@@ -11,6 +11,15 @@ void ThreadPool::worker_thread(size_t id) {
             std::lock_guard shrink(shrink_lock);
             if (total_workers > max_threads) {
                 --total_workers;
+                for (auto& w : workers) {
+                    if (w.id == id) {
+                        w.exited = true;
+                        break;
+                    }
+                }
+                if (total_workers == max_threads) {
+                    wait_cv.notify_all();
+                }
                 break;
             }
         }
@@ -43,13 +52,27 @@ ThreadPool::~ThreadPool() {
 }
 
 void ThreadPool::resize(unsigned int num_threads) {
+    std::unique_lock lock(shrink_lock);
+    if (num_threads == max_threads) return;
     max_threads = std::min(num_threads, std::thread::hardware_concurrency() - 1);
-
-    while (workers.size() < max_threads) {
-        workers.emplace_back(this, next_id.fetch_add(1));
-        ++total_workers;
+    if (total_workers < max_threads) {
+        while (workers.size() < max_threads) {
+            workers.emplace_back(this, next_id.fetch_add(1));
+            ++total_workers;
+        }
+    } else {
+        cv.notify_all();
+        wait_cv.wait(lock, [this]{return total_workers == max_threads;});
+        std::erase_if(workers, [](Worker& w) {
+            if (w.exited) {
+                if (w.thread.joinable()) {
+                    w.thread.join();
+                }
+                return true;
+            }
+            return false;
+        });
     }
-    cv.notify_all();
 }
 
 void ThreadPool::wait_all() {

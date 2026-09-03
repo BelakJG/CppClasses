@@ -44,7 +44,7 @@ public:
     void resize(unsigned int num_threads);
 
     const int tasks_left() const {return tasks.size();};
-    const int num_workers() const {return total_workers;};
+    const int num_workers() const {return workers.size();};
 
     void wait_all();
     void stop_all(bool remove_tasks = false);

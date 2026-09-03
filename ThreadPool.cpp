@@ -3,7 +3,7 @@
 
 #include "ThreadPool.hpp"
 
-void ThreadPool::worker_thread() {
+void ThreadPool::worker_thread(size_t id) {
     std::unique_lock lock(queue_lock);
     while (true) {
         cv.wait(lock, [this]{ return stop or !tasks.empty() or total_workers > max_threads;});
@@ -33,7 +33,7 @@ ThreadPool::ThreadPool(unsigned int num_threads) {
     max_threads = std::min(num_threads, std::thread::hardware_concurrency() - 1);
 
     for (int i = 0; i < max_threads; ++i) {
-        workers.emplace_back(&ThreadPool::worker_thread, this);
+        workers.emplace_back(this, next_id.fetch_add(1));
         ++total_workers;
     }
 }
@@ -46,7 +46,7 @@ void ThreadPool::resize(unsigned int num_threads) {
     max_threads = std::min(num_threads, std::thread::hardware_concurrency() - 1);
 
     while (workers.size() < max_threads) {
-        workers.emplace_back(&ThreadPool::worker_thread, this);
+        workers.emplace_back(this, next_id.fetch_add(1));
         ++total_workers;
     }
     cv.notify_all();
@@ -67,9 +67,9 @@ void ThreadPool::stop_all(bool remove_tasks) {
     }
     cv.notify_all();
 
-    for (auto& t : workers) {
-        if (t.joinable()) {
-            t.join();
+    for (auto& w : workers) {
+        if (w.thread.joinable()) {
+            w.thread.join();
         }
     }
 }

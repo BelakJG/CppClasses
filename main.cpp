@@ -47,10 +47,10 @@ void parallel_sort(auto& arr, auto& pool, size_t left, size_t right) {
 }
 
 int main() {
-    size_t num_workers = 500;
+    size_t num_workers = 7;
     ThreadPool pool(num_workers);
 
-    size_t num_to_sort = 10000000;
+    size_t num_to_sort = 25000000;
     RuntimeArray<int> arr_multi(num_to_sort);
 
     random_device rd;

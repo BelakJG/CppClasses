@@ -12,8 +12,18 @@
 
 class ThreadPool {
 private:
+    struct Worker {
+        std::thread thread;
+        size_t id;
+        bool exited = false;
+
+        Worker(ThreadPool* pool, size_t id) : id(id) {
+            thread = std::thread(&ThreadPool::worker_thread, pool, id);
+        }
+    };
+
     size_t max_threads;
-    std::vector<std::thread> workers;
+    std::vector<Worker> workers;
     size_t total_workers = 0;
     std::queue<std::move_only_function<void()>> tasks;
     std::mutex queue_lock;
@@ -22,8 +32,9 @@ private:
     std::condition_variable cv;
     std::condition_variable wait_cv;
     size_t running_tasks = 0;
+    std::atomic<size_t> next_id = 1;
 
-    void worker_thread();
+    void worker_thread(size_t id);
 public:
     ThreadPool(unsigned int num_threads = std::thread::hardware_concurrency());
     ~ThreadPool();

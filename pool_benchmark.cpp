@@ -91,5 +91,5 @@ int main() {
     cout << format("Resized to {} workers", pool.num_workers()) << endl;
 
     auto fut = pool.enqueue([]() {return 5 * 2.1;});
-    cout << format("Pool return {}", fut.get()) << endl;
+    cout << format("Pool returned {}", fut.get()) << endl;
 }

@@ -7,3 +7,4 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(pool_bench pool_benchmark.cpp ThreadPool.cpp)
 add_executable(merge_sort MergeSort.cpp)
+add_executable(bottom_merge BottomUpMerge.cpp)

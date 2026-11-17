@@ -55,12 +55,12 @@ int main() {
     size_t num_workers = 7;
     ThreadPool pool(num_workers);
 
-    size_t num_to_sort = 25000000;
+    size_t num_to_sort = 1000000;
     RuntimeArray<int> arr_multi(num_to_sort);
 
     random_device rd;
     mt19937_64 gen(rd());
-    uniform_int_distribution<uint64_t> distrib(0, num_to_sort * 10);
+    uniform_int_distribution<uint64_t> distrib(0, num_to_sort * 5);
 
     for (size_t i = 0; i < num_to_sort; ++i) {
         arr_multi[i] = distrib(gen);

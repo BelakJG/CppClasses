@@ -90,6 +90,17 @@ int main() {
     pool.resize(4);
     cout << format("Resized to {} workers", pool.num_workers()) << endl;
 
-    auto fut = pool.enqueue([]() {return 5 * 2.1;});
-    cout << format("Pool returned {}", fut.get()) << endl;
+    auto fut = pool.enqueue([]() {
+        double num = 11;
+        double prev = 2;
+        while (true) {
+            double next = (prev + (num / prev)) / 2.0;
+            if (abs(num - (next * next)) <= .0000000000001) {
+                return next;
+            } else {
+                prev = next;
+            }
+        }
+    });
+    cout << format("Pool returned {:.11f}", fut.get()) << endl;
 }

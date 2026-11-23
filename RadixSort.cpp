@@ -3,6 +3,7 @@
 #include <chrono>
 #include <cstdint>
 #include "RuntimeArray.hpp"
+#include "Benchmark.hpp"
 
 using namespace std;
 
@@ -55,11 +56,7 @@ int main() {
         arr[i] = dist(rng);
     }
 
-    auto start = chrono::steady_clock::now();
-    radix_sort(arr);
-    auto end = chrono::steady_clock::now();
-    auto duration = chrono::duration_cast<chrono::milliseconds>(end - start);
+    benchmark([&]() {radix_sort(arr);});
 
-    cout << "Sorting took " << duration.count() << " ms!" << endl;
     cout << "array is " << (is_sorted(arr) ? "Sorted!" : "Not Sorted!") << endl;
 }

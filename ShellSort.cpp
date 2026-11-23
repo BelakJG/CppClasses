@@ -15,13 +15,13 @@ void shell_sort(auto& arr, size_t left = 0, size_t right = SIZE_MAX) {
     while (gap >= 1) {
         for (size_t i = left + gap; i <= right; ++i) {
             size_t j = i;
-            auto key = arr[i];
+            auto key = move(arr[i]);
             while (j >= left + gap && arr[j - gap] > key) {
-                arr[j] = arr[j - gap];
+                arr[j] = move(arr[j - gap]);
                 if (j < gap) break;
                 j -= gap;
             }
-            arr[j] = key;
+            arr[j] = move(key);
         }
         gap /= 2;
     }

@@ -12,10 +12,12 @@ void radix_sort(auto& arr) {
     RuntimeArray<size_t> counts(256);
     RuntimeArray<int> temp(arr.size());
 
-    for (int shift = 0; shift < 32; shift += 8) {
+    uint64_t num_shift_size = sizeof(arr[0]) * 8;
+
+    for (int shift = 0; shift < num_shift_size; shift += 8) {
         for (int num : arr) {
             uint8_t byte = (num >> shift) & 0xFF;
-            if (shift == 24) byte ^= 0x80;
+            if ((shift == 24 && num_shift_size == 32) || (shift == 56 && num_shift_size == 64)) byte ^= 0x80;
             counts[byte] += 1;
         }
 
@@ -45,7 +47,7 @@ bool is_sorted(const auto& arr) {
 }
 
 int main() {
-    const size_t arr_size = 1000000;
+    const size_t arr_size = 10000000;
     RuntimeArray<int> arr(arr_size);
 
     random_device rd;

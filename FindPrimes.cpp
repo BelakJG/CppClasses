@@ -9,7 +9,7 @@ using namespace std;
 void find_primes(auto& container, size_t max_search) {
     for (size_t i = 3; i * i <= max_search; i += 2) {
         if (container[i]) {
-            for (size_t j = i + i; j < max_search; j += i) {
+            for (size_t j = i * i; j < max_search; j += i * 2) {
                 container[j] = 0;
             }
         }
@@ -18,8 +18,7 @@ void find_primes(auto& container, size_t max_search) {
 
 int main() {
     const size_t max_search = 1000000;
-    vector<uint8_t> primes;
-    primes.resize(max_search);
+    vector<uint8_t> primes(max_search, 0);
     
     primes[2] = 1;
     for (size_t i = 3; i < max_search; i += 2) {

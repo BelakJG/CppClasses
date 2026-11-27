@@ -15,13 +15,13 @@ decltype(auto) benchmark(Func&& func, Args&&... args) {
     if constexpr (std::is_void_v<ReturnType>) {
         std::invoke(std::forward<Func>(func), std::forward<Args>(args)...);
         auto end = std::chrono::steady_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-        std::cout << "Benchmark: Timed function took " << duration.count() << " ms" << std::endl;
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+        std::cout << "Benchmark: Timed function took " << (duration.count() / 1000.0)  << " ms" << std::endl;
     } else {
         auto result = std::invoke(std::forward<Func>(func), std::forward<Args>(args)...);
         auto end = std::chrono::steady_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-        std::cout << "Benchmark: Timed function took " << duration.count() << " ms" << std::endl;
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+        std::cout << "Benchmark: Timed function took " << (duration.count() / 1000.0)  << " ms" << std::endl;
         return result;
     }
 }
